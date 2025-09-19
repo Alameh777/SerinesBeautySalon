@@ -143,7 +143,5 @@
 </table>
 
 {{-- Pagination --}}
-<div style="margin-top:15px;">
-    {{ $services->links() }}
-</div>
+
 @endsection
