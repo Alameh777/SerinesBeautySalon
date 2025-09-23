@@ -1,5 +1,52 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+/* Search bar + Add button wrapper */
+.search-add-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Fixed width for search input */
+.search-add-wrapper input[type="text"] {
+    width: 300px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    font-size: 14px;
+}
+
+/* Align buttons to match input height */
+.search-add-wrapper button,
+.search-add-wrapper a.btn {
+    height: 44px;
+}
+
+/* Table action buttons */
+.table-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.table-actions button, .table-actions a {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+</style>
+@endpush
+
 @section('content')
 <h1>Employees</h1>
 
@@ -15,9 +62,18 @@
     </div>
 @endif
 
-<a href="{{ route('employees.create') }}" class="btn btn-success" style="margin-bottom:10px; display:inline-block;">
-    <i class="fas fa-plus"></i> Add Employee
-</a>
+<div class="search-add-wrapper">
+    <!-- Search Form -->
+    <form method="GET" style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search employees by name or email...">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <!-- Add Employee Button -->
+    <a href="{{ route('employees.create') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Add Employee
+    </a>
+</div>
 
 <table>
     <thead>
@@ -33,9 +89,8 @@
         @foreach($employees as $employee)
         <tr>
             <td>{{ $employee->name }}</td>
-            <td>{{ $employee->email }}</td>
-            <td>{{ $employee->phone }}</td>
-            
+            <td>{{ $employee->email ?? '-' }}</td>
+            <td>{{ $employee->phone ?? '-' }}</td>
             <td>
                 @if($employee->services->count())
                     @foreach($employee->services as $service)

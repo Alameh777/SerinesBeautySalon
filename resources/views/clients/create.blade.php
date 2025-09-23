@@ -34,7 +34,7 @@
         <div style="margin-bottom:14px;">
             <label style="display:block; margin-bottom:4px;">Address</label>
             <input type="text" name="address" value="{{ old('address') }}" 
-                   style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ccc;">
+                style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ccc;">
             @error('address') <span style="color:red;">{{ $message }}</span> @enderror
         </div>
 

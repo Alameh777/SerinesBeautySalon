@@ -92,7 +92,8 @@ class BookingController extends Controller
         }
     }
 
-    return redirect()->route('bookings.index')->with('success','Booking created successfully.');
+    return redirect()->to('/bookings/employee?employee_id=&date=' . date('Y-m-d') . '&show_all=1')
+    ->with('success', 'Employee added successfully.');
 }
 
 

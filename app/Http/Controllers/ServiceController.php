@@ -6,11 +6,19 @@ use Illuminate\Http\Request;
 use App\Models\Service;
 class ServiceController
 {
-    public function index()
-    {
-        $services = Service::latest()->paginate(10);
-        return view('services.index', compact('services'));
-    }
+    public function index(Request $request)
+{
+    $query = $request->get('search');
+
+    $services = Service::when($query, function($q) use ($query) {
+        $q->where('name', 'like', "%{$query}%");
+    })
+    ->latest()
+    ->paginate(10);
+
+    return view('services.index', compact('services'));
+}
+
 
     public function create()
 {
@@ -24,7 +32,7 @@ class ServiceController
         'name' => 'required|string|max:255',
         'description' => 'nullable|string',
         'price' => 'required|numeric|min:0',
-        'duration' => 'required|integer|min:1',
+        'duration' => 'nullable|integer|min:1',
         'employees' => 'nullable|array',
         'employees.*' => 'exists:employees,id',
     ]);
@@ -53,7 +61,7 @@ class ServiceController
         'name' => 'required|string|max:255',
         'description' => 'nullable|string',
         'price' => 'required|numeric|min:0',
-        'duration' => 'required|integer|min:1',
+        'duration' => 'nullable|integer|min:1',
         'employees' => 'nullable|array',
         'employees.*' => 'exists:employees,id',
     ]);

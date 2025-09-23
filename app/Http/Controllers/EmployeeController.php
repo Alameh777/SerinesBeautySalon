@@ -8,11 +8,20 @@ use phpDocumentor\Reflection\Types\Nullable;
 
 class EmployeeController extends Controller
 {
-    public function index()
-    {
-        $employees = Employee::latest()->paginate(10);
-        return view('employees.index', compact('employees'));
-    }
+    public function index(Request $request)
+{
+    $query = $request->get('search');
+
+    $employees = Employee::when($query, function($q) use ($query) {
+        $q->where('name', 'like', "%{$query}%")
+        ->orWhere('email', 'like', "%{$query}%");
+    })
+    ->latest()
+    ->paginate(10);
+
+    return view('employees.index', compact('employees'));
+}
+
 
    public function create()
 {

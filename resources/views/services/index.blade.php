@@ -2,7 +2,50 @@
 
 @push('styles')
 <style>
-/* Make pagination smaller */
+/* Search bar + Add button wrapper */
+.search-add-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Fixed width for search input */
+.search-add-wrapper input[type="text"] {
+    width: 300px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    font-size: 14px;
+}
+
+/* Align buttons to match input height */
+.search-add-wrapper button,
+.search-add-wrapper a.btn {
+    height: 44px;
+}
+
+/* Table action buttons */
+.table-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.table-actions a, 
+.table-actions button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+}
+/* Pagination styling */
 .pagination {
     display: flex;
     gap: 4px;
@@ -11,9 +54,11 @@
 }
 
 .pagination .page-link {
-    padding: 4px 10px;      /* smaller padding */
-    font-size: 13px;        /* smaller font */
-    border-radius: 6px;
+    padding: 4px 8px;        /* smaller padding */
+    font-size: 12px;         /* smaller font */
+    border-radius: 4px;      /* slightly rounded */
+    min-width: 32px;         /* uniform width */
+    text-align: center;
 }
 
 .pagination .page-item.active .page-link {
@@ -26,26 +71,7 @@
     background-color: #f4f4f5;
 }
 
-/* Action buttons styling */
-.table-actions {
-    display: flex;
-    gap: 6px; /* space between buttons */
-}
-
-.table-actions a, 
-.table-actions button {
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 6px;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 0;
-}
-
+/* Optional: make all action icons same size */
 .table-actions a.btn-primary {
     background-color: #007bff;
     color: #fff;
@@ -64,16 +90,36 @@
 .table-actions button.btn-danger:hover {
     background-color: #c82333;
 }
-</style>
 
-{{-- Include Font Awesome for icons --}}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+/* Pagination styling */
+.pagination {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.pagination .page-link {
+    padding: 4px 10px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #ff4f90;
+    border-color: #ff4f90;
+    color: #fff;
+}
+
+.pagination .page-link:hover {
+    background-color: #f4f4f5;
+}
+</style>
 @endpush
 
 @section('content')
 <h1>Services</h1>
 
-{{-- Session messages --}}
 @if(session('success'))
     <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
         {{ session('success') }}
@@ -86,13 +132,19 @@
     </div>
 @endif
 
+<div class="search-add-wrapper">
+    <!-- Search Form -->
+    <form method="GET" style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search services by name...">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
 
-{{-- Add Service Button --}}
-<a href="{{ route('services.create') }}" class="btn btn-success" style="margin-bottom:10px; display:inline-block;">
-    <i class="fas fa-plus"></i> Add Service
-</a>
+    <!-- Add Service Button -->
+    <a href="{{ route('services.create') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Add Service
+    </a>
+</div>
 
-{{-- Services Table --}}
 <table>
     <thead>
         <tr>
@@ -122,12 +174,10 @@
             </td>
             <td>
                 <div class="table-actions">
-                    {{-- Edit icon --}}
                     <a href="{{ route('services.edit', $service->id) }}" class="btn btn-primary" title="Edit">
                         <i class="fas fa-edit"></i>
                     </a>
 
-                    {{-- Delete icon --}}
                     <form action="{{ route('services.destroy', $service->id) }}" method="POST" style="display:inline;">
                         @csrf
                         @method('DELETE')
@@ -142,6 +192,7 @@
     </tbody>
 </table>
 
-{{-- Pagination --}}
-    
+<div style="margin-top:15px;">
+    {{ $services->links() }}
+</div>
 @endsection
