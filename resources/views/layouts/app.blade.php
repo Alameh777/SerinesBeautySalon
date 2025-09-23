@@ -77,9 +77,13 @@
         th { background: linear-gradient(135deg, var(--pink-50), #fff); color: var(--gray-700); font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
         tr:hover { background-color: var(--gray-50); }
         tr:last-child td { border-bottom: 0; }
-
+        
         input[type="text"], input[type="datetime-local"], input[type="number"], input[type="email"], textarea, select { width: 100%; padding: 12px 16px; border: 2px solid var(--gray-200); border-radius: 8px; outline: none; background: #fff; font-size: 14px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         input:focus, textarea:focus, select:focus { border-color: var(--pink-400); box-shadow: 0 0 0 3px rgba(255,115,165,0.15), 0 2px 8px rgba(0,0,0,0.1); transform: translateY(-1px); }
+        .badge-black {
+    color: #000 !important;
+    background-color: #d1ecf1; /* optional: keep badge background if needed */
+}
 
     </style>
     

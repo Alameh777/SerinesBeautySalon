@@ -104,71 +104,84 @@ public function index()
 public function byEmployee(Request $request)
 {
     $employees = Employee::orderBy('name')->get();
-    $employeeId = $request->get('employee_id');
-    $date = $request->get('date', now()->format('Y-m-d')); // Default to today
-    $showAll = $request->get('show_all', false);
-    
+    $employeeId = $request->get('employee_id');      // may be null
+    $date = $request->get('date');                  // DO NOT default to today here
+    $showAll = $request->boolean('show_all');       // cast to boolean properly
+
     $bookings = collect();
-    
+
     if ($showAll) {
-        // Show all bookings regardless of employee or date
+        // All bookings (optionally for a specific employee)
         if ($employeeId) {
-            // All bookings for specific employee
             $bookings = Booking::whereHas('serviceEmployees', function($q) use ($employeeId) {
                 $q->where('employee_id', $employeeId);
             })->with(['client','serviceEmployees.service','serviceEmployees.employee'])
               ->orderBy('start_time','desc')->get();
         } else {
-            // All bookings for all employees
             $bookings = Booking::with(['client','serviceEmployees.service','serviceEmployees.employee'])
                               ->orderBy('start_time','desc')->get();
         }
-    } elseif ($employeeId) {
-        // Filter by employee and date
+    } elseif ($employeeId && $date) {
+        // Employee + date
         $bookings = Booking::whereHas('serviceEmployees', function($q) use ($employeeId) {
             $q->where('employee_id', $employeeId);
         })->whereDate('start_time', $date)
           ->with(['client','serviceEmployees.service','serviceEmployees.employee'])
           ->orderBy('start_time','desc')->get();
+    } elseif ($date) {
+        // Date only (all employees) <- THIS IS THE FIX FOR YOUR PROBLEM
+        $bookings = Booking::whereDate('start_time', $date)
+            ->with(['client','serviceEmployees.service','serviceEmployees.employee'])
+            ->orderBy('start_time','desc')->get();
+    } elseif ($employeeId) {
+        // Employee only (no date filter)
+        $bookings = Booking::whereHas('serviceEmployees', function($q) use ($employeeId) {
+            $q->where('employee_id', $employeeId);
+        })->with(['client','serviceEmployees.service','serviceEmployees.employee'])
+          ->orderBy('start_time','desc')->get();
     }
-    
+
     return view('bookings.by_employee', compact('employees','employeeId','date','showAll','bookings'));
 }
 
-
-    public function update(Request $request, Booking $booking)
+public function update(Request $request, Booking $booking)
 {
-    $request->validate([
-        'client_id'=>'required|exists:clients,id',
-        'start_time'=>'required|date',
-        'payment_status'=>'required|in:paid,unpaid',
-        'services.*.service_id'=>'required|exists:services,id',
-        'services.*.employee_id'=>'required|exists:employees,id',
+    // Validate request
+    $validated = $request->validate([
+        'client_id' => 'required|exists:clients,id',
+        'start_time' => 'required|date',
+        'payment_status' => 'required|in:unpaid,paid',
+        'notes' => 'nullable|string',
+        'services' => 'required|array',
+        'services.*.service_id' => 'required|exists:services,id',
+        'services.*.employee_id' => 'required|exists:employees,id',
+        'services.*.price' => 'required|numeric|min:0',
     ]);
 
-    // Update the booking
+    // Update booking info
     $booking->update([
-        'client_id'=>$request->client_id,
-        'start_time'=>$request->start_time,
-        'notes'=>$request->notes,
-        'payment_status'=>$request->payment_status,
+        'client_id' => $validated['client_id'],
+        'start_time' => $validated['start_time'],
+        'payment_status' => $validated['payment_status'],
+        'notes' => $validated['notes'],
     ]);
 
-    // Delete existing service-employee relationships
-    $booking->serviceEmployees()->delete();
+    // Sync services & employees with price
+    $booking->serviceEmployees()->delete(); // remove old entries
 
-    // Create new service-employee relationships
-    if ($request->has('services')) {
-        foreach ($request->services as $serviceData) {
-            $booking->serviceEmployees()->create([
-                'service_id' => $serviceData['service_id'],
-                'employee_id' => $serviceData['employee_id'],
-            ]);
-        }
+    foreach ($validated['services'] as $serviceData) {
+        $booking->serviceEmployees()->create([
+            'service_id' => $serviceData['service_id'],
+            'employee_id' => $serviceData['employee_id'],
+            'price' => $serviceData['price'],
+        ]);
     }
 
-    return redirect()->route('bookings.index')->with('success','Booking updated successfully.');
+    // ✅ Redirect back to your employee bookings page
+    return redirect()->to('/bookings/employee')->with('success', 'Booking updated successfully.');
 }
+
+
 
     public function schedule()
     {

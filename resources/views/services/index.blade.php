@@ -143,5 +143,5 @@
 </table>
 
 {{-- Pagination --}}
-
+    
 @endsection

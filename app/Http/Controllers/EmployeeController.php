@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Service;
 use App\Models\Employee;
 use Illuminate\Http\Request;
-
+use phpDocumentor\Reflection\Types\Nullable;
 
 class EmployeeController extends Controller
 {
@@ -24,13 +24,13 @@ class EmployeeController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:employees,email',
+            'email' => 'nullable|email|unique:employees,email,' ,
             'phone' => 'nullable|string',
             'service'=>'nullable|array',
             'services.*'=>'exists:services,id'
         ]);
 
-    $employee = Employee::create($request->only(['name','email','phone']));
+    $employee = Employee::create($request->only(['name']));
 
     if ($request->has('services')) {
         $employee->services()->sync($request->services);
@@ -51,7 +51,7 @@ class EmployeeController extends Controller
 {
     $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:employees,email,' . $employee->id,
+        'email' => 'nullable|email|unique:employees,email,' . $employee->id,
         'phone' => 'nullable|string',
         'services' => 'nullable|array',
         'services.*' => 'exists:services,id',

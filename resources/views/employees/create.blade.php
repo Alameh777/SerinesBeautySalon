@@ -105,7 +105,7 @@
         <input type="text" name="name" value="{{ old('name') }}" placeholder="Enter employee name" required>
 
         <label for="email">Email:</label>
-        <input type="email" name="email" value="{{ old('email') }}" placeholder="Enter email" required>
+        <input type="email" name="email" value="{{ old('email') }}" placeholder="Enter email" >
 
         <label for="phone">Phone:</label>
         <input type="text" name="phone" value="{{ old('phone') }}" placeholder="Enter phone number">

@@ -12,8 +12,8 @@ protected $fillable = [
     'start_time',
     'notes',
     'payment_status',
+        
 ];
-
 
     protected $casts = [
     'services_employees' => 'array', // Laravel automatically casts JSON to array
