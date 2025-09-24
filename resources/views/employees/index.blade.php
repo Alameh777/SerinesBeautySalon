@@ -81,7 +81,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
-            <th>Service/s</th>
+            
             <th>Actions</th>
         </tr>
     </thead>
@@ -91,7 +91,7 @@
             <td>{{ $employee->name }}</td>
             <td>{{ $employee->email ?? '-' }}</td>
             <td>{{ $employee->phone ?? '-' }}</td>
-            <td>
+            <!-- <td>
                 @if($employee->services->count())
                     @foreach($employee->services as $service)
                         <span class="badge badge-info">{{ $service->name }}</span>
@@ -99,7 +99,7 @@
                 @else
                     <span style="color:#888; font-style: italic;">No services assigned</span>
                 @endif
-            </td>
+            </td> -->
             <td>
                 <div class="table-actions">
                     <a href="{{ route('employees.edit', $employee->id) }}" class="btn btn-sm btn-primary" title="Edit">

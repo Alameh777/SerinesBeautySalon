@@ -14,14 +14,8 @@ return new class extends Migration
             // This sets up the relationship with the 'clients' table.
             $table->foreignId('client_id')->constrained()->onDelete('cascade');
             
-            // Relationship with the 'services' table.
-            $table->foreignId('service_id')->constrained()->onDelete('cascade');
-            
-            // Relationship with the 'employees' table.
-            $table->foreignId('employee_id')->constrained()->onDelete('cascade');
-            
             $table->dateTime('start_time'); 
-            $table->dateTime('end_time');
+            
             $table->string('payment_status')->default('unpaid'); 
             $table->text('notes')->nullable();
             $table->timestamps();

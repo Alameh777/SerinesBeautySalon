@@ -163,15 +163,17 @@
             <td>{{ $service->description }}</td>
             <td><strong>${{ number_format($service->price, 2) }}</strong></td>
             <td>{{ $service->duration }} min</td>
-            <td>
-                @if($service->employees->count())
-                    @foreach($service->employees as $employee)
-                        <span class="badge badge-info">{{ $employee->name }}</span>
-                    @endforeach
-                @else
-                    <span style="color:#888; font-style: italic;">No employees assigned</span>
-                @endif
-            </td>
+<td>
+    @if($service->default_employee)
+        <strong>Default: {{ $service->default_employee->name }}</strong><br>
+    @endif
+
+    @foreach($service->employees as $employee)
+        <span>{{ $employee->name }}</span>
+    @endforeach
+</td>
+
+
             <td>
                 <div class="table-actions">
                     <a href="{{ route('services.edit', $service->id) }}" class="btn btn-primary" title="Edit">

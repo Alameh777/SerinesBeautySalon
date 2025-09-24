@@ -22,22 +22,25 @@ class ClientController extends Controller
 
         return view('clients.index', compact('clients'));
     }
-
+    //create 
     public function create()
     {
         return view('clients.create');
     }
 
+
+    
     public function store(Request $request)
 {
     $request->validate([
         'full_name' => 'required|string|max:255',
-        'phone' => 'required|string|unique:clients,phone',
+        'phone' => 'nullable|string|unique:clients,phone',
         'address' => 'nullable|string',
+        'gender'=>'nullable|string',
         'notes' => 'nullable|string',
     ]);
 
-    Client::create($request->only(['full_name', 'phone', 'address', 'notes']));
+    Client::create($request->only(['full_name', 'phone', 'address','gender', 'notes']));
 
     return redirect()->route('clients.index')->with('success', 'Client added successfully.');
 }
@@ -51,8 +54,9 @@ class ClientController extends Controller
     {
         $request->validate([
             'full_name' => 'required|string|max:255',
-            'phone' => 'required|string|unique:clients,phone,' . $client->id,
+            'phone' => 'nullable|string|unique:clients,phone,' . $client->id,
             'address' => 'nullable|string',
+            'gender'=>'nullable|string',
             'notes' => 'nullable|string',
         ]);
 

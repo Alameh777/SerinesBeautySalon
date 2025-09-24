@@ -16,6 +16,7 @@ return new class extends Migration
     $table->foreignId('booking_id')->constrained()->onDelete('cascade');
     $table->foreignId('service_id')->constrained()->onDelete('cascade');
     $table->foreignId('employee_id')->constrained()->onDelete('cascade');
+    $table->decimal('price', 8, 2)->default(0.00);
     $table->timestamps();
 });
 

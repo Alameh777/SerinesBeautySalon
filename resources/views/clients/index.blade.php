@@ -78,7 +78,11 @@
         <tr>
             <th>Name</th>
             <th>Phone</th>
+            <th>Address</th>
+            <th>Gender</th>
+            <th>Notes</th>
             <th>Actions</th>
+
         </tr>
     </thead>
     <tbody>
@@ -86,6 +90,9 @@
         <tr>
             <td>{{ $client->full_name }}</td>
             <td>{{ $client->phone }}</td>
+            <td>{{ $client->address ?? '-' }}</td>
+            <td>{{ ucfirst($client->gender ?? '-') }}</td>
+            <td>{{ $client->notes ?? '-' }}</td>
             <td>
                 <div class="table-actions">
                     <a href="{{ route('clients.edit', $client->id) }}" class="btn btn-sm btn-primary" title="Edit">

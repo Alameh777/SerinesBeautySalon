@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('clients', function (Blueprint $table) {
             $table->id(); // Creates an auto-incrementing primary key column named 'id'.
             $table->string('full_name'); // Creates a VARCHAR column for the client's name.
-            $table->string('phone')->unique(); // A VARCHAR column for the phone, marked as unique.
+            $table->string('phone')->nullable(); // A VARCHAR column for the phone, marked as unique.
             $table->string('address')->nullable(); // A VARCHAR for the address, which can be empty (null).
             $table->text('notes')->nullable(); // A TEXT column for longer notes, also optional.
+            $table->enum('gender', ['male', 'female'])->nullable();
             $table->timestamps(); // Creates 'created_at' and 'updated_at' columns automatically.
         });
     }

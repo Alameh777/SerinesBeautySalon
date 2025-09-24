@@ -22,7 +22,7 @@
         <div style="margin-bottom:14px;">
             <label style="display:block; margin-bottom:4px;">Name</label>
             <input type="text" name="name" value="{{ old('name', $service->name) }}" 
-                   style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ccc;">
+            style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ccc;">
             @error('name') <span style="color:red;">{{ $message }}</span> @enderror
         </div>
 
@@ -50,17 +50,21 @@
         </div>
 
         <!-- Employees Checkboxes -->
-        <div style="margin-bottom:20px;">
-            <label style="display:block; margin-bottom:4px;">Assign Employees</label>
-            @foreach($employees as $employee)
-                <label style="display:block; margin-bottom:5px;">
-                    <input type="checkbox" name="employees[]" value="{{ $employee->id }}"
-                        {{ (isset($serviceEmployees) && in_array($employee->id, $serviceEmployees)) || in_array($employee->id, old('employees', [])) ? 'checked' : '' }}>
-                    {{ $employee->name }}
-                </label>
-            @endforeach
-            @error('employees') <span style="color:red;">{{ $message }}</span> @enderror
-        </div>
+        <div style="margin-bottom:14px;">
+    <label style="display:block; margin-bottom:4px;">Default Employee</label>
+    <select name="default_employee_id" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ccc;">
+        <option value="">-- Select default employee --</option>
+        @foreach($employees as $employee)
+            <option value="{{ $employee->id }}"
+                {{ (isset($service) && $service->default_employee_id == $employee->id) || old('default_employee_id') == $employee->id ? 'selected' : '' }}>
+                {{ $employee->name }}
+            </option>
+        @endforeach
+    </select>
+    @error('default_employee_id') <span style="color:red;">{{ $message }}</span> @enderror
+</div>
+
+
 
         <button type="submit" style="padding:12px 24px; background-color:#28a745; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer; transition: all 0.2s;">
             Update Service
