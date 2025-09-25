@@ -81,7 +81,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
-            
+            <th>Gender</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -91,6 +91,7 @@
             <td>{{ $employee->name }}</td>
             <td>{{ $employee->email ?? '-' }}</td>
             <td>{{ $employee->phone ?? '-' }}</td>
+            <td>{{ ucfirst($employee->gender ?? '-') }}</td>
             <!-- <td>
                 @if($employee->services->count())
                     @foreach($employee->services as $service)

@@ -1,81 +1,81 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Service;
 use App\Models\Employee;
 use Illuminate\Http\Request;
-use phpDocumentor\Reflection\Types\Nullable;
 
 class EmployeeController extends Controller
 {
     public function index(Request $request)
-{
-    $query = $request->get('search');
+    {
+        $query = $request->get('search');
 
-    $employees = Employee::when($query, function($q) use ($query) {
-        $q->where('name', 'like', "%{$query}%")
-        ->orWhere('email', 'like', "%{$query}%");
-    })
-    ->latest()
-    ->paginate(10);
+        $employees = Employee::when($query, function($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('email', 'like', "%{$query}%");
+        })
+        ->latest()
+        ->paginate(10);
 
-    return view('employees.index', compact('employees'));
-}
+        return view('employees.index', compact('employees'));
+    }
 
-
-   public function create()
-{
-    $services = Service::orderBy('name')->get();
-    return view('employees.create', compact('services'));
-}
+    public function create()
+    {
+        $services = Service::orderBy('name')->get();
+        return view('employees.create', compact('services'));
+    }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:employees,email,' ,
-            'phone' => 'nullable|string',
-            'service'=>'nullable|array',
-            'services.*'=>'exists:services,id'
+            'name'    => 'required|string|max:255',
+            'email'   => 'nullable|email|unique:employees,email',
+            'phone'   => 'nullable|string',
+            'gender'  => 'nullable|in:male,female',
+            'services'=> 'nullable|array',
+            'services.*' => 'exists:services,id'
         ]);
 
-    $employee = Employee::create($request->only(['name']));
+        // Save employee with all fields
+        $employee = Employee::create($request->only(['name','email','phone','gender']));
 
-    if ($request->has('services')) {
-        $employee->services()->sync($request->services);
+        if ($request->has('services')) {
+            $employee->services()->sync($request->services);
+        }
+
+        return redirect()->route('employees.index')->with('success', 'Employee added successfully.');
     }
 
-    return redirect()->route('employees.index')->with('success', 'Employee added successfully.');
-}
-
-    
     public function edit(Employee $employee)
-{
-    $services = Service::orderBy('name')->get();
-    $employeeServices = $employee->services->pluck('id')->toArray();
-    return view('employees.edit', compact('employee', 'services', 'employeeServices'));
-}
+    {
+        $services = Service::orderBy('name')->get();
+        $employeeServices = $employee->services->pluck('id')->toArray();
+        return view('employees.edit', compact('employee', 'services', 'employeeServices'));
+    }
 
     public function update(Request $request, Employee $employee)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'nullable|email|unique:employees,email,' . $employee->id,
-        'phone' => 'nullable|string',
-        'services' => 'nullable|array',
-        'services.*' => 'exists:services,id',
-    ]);
+    {
+        $request->validate([
+            'name'    => 'required|string|max:255',
+            'email'   => 'nullable|email|unique:employees,email,' . $employee->id,
+            'phone'   => 'nullable|string',
+            'gender'  => 'nullable|in:male,female',
+            'services'=> 'nullable|array',
+            'services.*' => 'exists:services,id',
+        ]);
 
-    $employee->update($request->only(['name','email','phone']));
+        $employee->update($request->only(['name','email','phone','gender']));
 
-    $employee->services()->sync($request->services ?? []);
+        $employee->services()->sync($request->services ?? []);
 
-    return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
-}
+        return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+    }
 
     public function destroy(Employee $employee)
     {
-        // Check if employee has any bookings
         $hasBookings = \App\Models\BookingServiceEmployee::where('employee_id', $employee->id)->exists();
         
         if ($hasBookings) {

@@ -1,4 +1,4 @@
-    @extends('layouts.app')
+@extends('layouts.app')
 
     @push('styles')
     <style>
@@ -136,9 +136,10 @@
                 </select>
             </div>
             <div class="filter-group">
-                <label for="date">Date</label>
-                <input type="date" name="date" id="date" value="{{ $date ?? now()->format('Y-m-d') }}" />
-            </div>
+    <label for="date">Date</label>
+    <input type="date" name="date" id="date" value="{{ $date ?? now()->format('Y-m-d') }}" />
+</div>
+
             
             <div class="filter-group buttons">
                 <label>&nbsp;</label> 
@@ -194,18 +195,28 @@
                             </span>
                         </td>
                         <td>
-                            <div class="table-actions">
-                                <a class="btn btn-sm btn-edit" href="{{ route('bookings.edit', $booking->id) }}">Edit</a>
-                                <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Are you sure you want to delete this booking?')">
-                                        Delete
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
+    <div class="table-actions">
+        <!-- Edit -->
+        <a class="btn btn-sm btn-edit" 
+           href="{{ route('bookings.edit', $booking->id) }}" 
+           title="Edit">
+            <i class="fas fa-edit"></i> 
+        </a>
+
+        <!-- Delete -->
+        <form action="{{ route('bookings.destroy', $booking->id) }}" 
+              method="POST" style="display:inline;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-sm btn-danger" 
+                    title="Delete" 
+                    onclick="return confirm('Are you sure you want to delete this booking?')">
+                <i class="fas fa-trash-alt"></i> 
+            </button>
+        </form>
+    </div>
+</td>
+
                     </tr>
                 @endforeach
                 </tbody>

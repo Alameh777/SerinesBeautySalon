@@ -20,6 +20,7 @@
     transform: scale(1.02);
 }
 
+
 .card-body { padding: 40px 30px; }
 
 .card-title {

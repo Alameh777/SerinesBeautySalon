@@ -51,6 +51,12 @@ class BookingController extends Controller
         }
     }
 
+  
+
+
+   
+
+
     public function destroy(Booking $booking)
 {
     // Delete related service-employee relationships first

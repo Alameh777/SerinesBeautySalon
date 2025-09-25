@@ -25,7 +25,7 @@
 
         <div style="margin-bottom:14px;">
             <label for="email" style="display:block; margin-bottom:4px;">Email:</label>
-            <input type="email" name="email" value="{{ old('email', $employee->email) }}" required style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ccc;">
+            <input type="email" name="email" value="{{ old('email', $employee->email) }}"  style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ccc;">
         </div>
 
         <div style="margin-bottom:14px;">
@@ -43,18 +43,7 @@
             </label>
         </div>
 
-        <div style="margin-bottom:20px;">
-            <label style="display:block; margin-bottom:4px;">Assign Services:</label>
-            <div style="display:flex; flex-wrap:wrap; gap:10px;">
-                @foreach($services as $service)
-                    <label style="display:flex; align-items:center; gap:6px; background:#f4f4f4; padding:6px 10px; border-radius:6px; cursor:pointer;">
-                        <input type="checkbox" name="services[]" value="{{ $service->id }}" 
-                            {{ $employee->services->contains($service->id) || (collect(old('services'))->contains($service->id)) ? 'checked':'' }}>
-                        {{ $service->name }}
-                    </label>
-                @endforeach
-            </div>
-        </div>
+        
 
         <button type="submit" style="padding:12px 24px; background-color:#28a745; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer; transition: all 0.2s;">
             Update Employee

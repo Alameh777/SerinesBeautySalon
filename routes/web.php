@@ -42,6 +42,9 @@ Route::get('bookings/events', [BookingController::class, 'getEvents'])->name('bo
 // View bookings filtered by employee
 Route::get('bookings/employee', [BookingController::class, 'byEmployee'])->name('bookings.byEmployee');
 
+
+
+
 // Debug routes
 Route::get('debug-booking/{id}', function($id) {
     try {

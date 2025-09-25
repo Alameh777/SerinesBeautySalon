@@ -116,18 +116,6 @@
             <label><input type="radio" name="gender" value="female" {{ old('gender') == 'female' ? 'checked' : '' }}> Female</label>
         </div>
 
-        <label>Assign Services:</label>
-<div class="services-options" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
-    @foreach($services as $service)
-        <label style="display:flex; align-items:center; gap:6px; background:#f4f4f4; padding:6px 10px; border-radius:6px; cursor:pointer;">
-            <input type="checkbox" name="services[]" value="{{ $service->id }}" 
-                {{ (collect(old('services'))->contains($service->id)) ? 'checked':'' }}>
-            {{ $service->name }}
-        </label>
-    @endforeach
-</div>
-
-        </select>
 
         <button type="submit">Add Employee</button>
     </form>
