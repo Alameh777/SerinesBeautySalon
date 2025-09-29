@@ -9,18 +9,17 @@ use Illuminate\Http\Request;
 class EmployeeController extends Controller
 {
     public function index(Request $request)
-    {
-        $query = $request->get('search');
+{
+    $search = $request->input('search');
 
-        $employees = Employee::when($query, function($q) use ($query) {
-            $q->where('name', 'like', "%{$query}%")
-              ->orWhere('email', 'like', "%{$query}%");
-        })
-        ->latest()
-        ->paginate(10);
+    $employees = Employee::when($search, function ($query, $search) {
+        return $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+    })->paginate(10); // Show 10 employees per page
 
-        return view('employees.index', compact('employees'));
-    }
+    return view('employees.index', compact('employees'));
+}
+
 
     public function create()
     {

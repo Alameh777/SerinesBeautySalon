@@ -6,7 +6,7 @@
     use App\Models\Service;
     class ServiceController
     {
-        public function index(Request $request)
+public function index(Request $request)
 {
     $query = $request->get('search');
 
@@ -19,6 +19,7 @@
 
     return view('services.index', compact('services'));
 }
+
 
 
 

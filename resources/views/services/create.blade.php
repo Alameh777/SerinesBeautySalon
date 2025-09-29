@@ -6,15 +6,7 @@
         {{ isset($service) ? 'Edit' : 'Add' }} Service
     </h1>
 
-    @if ($errors->any())
-        <div style="color:red; margin-bottom:16px;">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+  
 
     <form action="{{ isset($service) ? route('services.update', $service->id) : route('services.store') }}" method="POST">
         @csrf
@@ -59,7 +51,7 @@
         <div style="margin-bottom:20px;">
             <label style="display:block; margin-bottom:4px;">Duration (minutes)</label>
             <input type="number" name="duration" value="{{ old('duration', $service->duration ?? '') }}" 
-                   style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ccc;">
+                style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ccc;">
             @error('duration') <span style="color:red;">{{ $message }}</span> @enderror
         </div>
 

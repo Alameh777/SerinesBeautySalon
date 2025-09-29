@@ -120,7 +120,7 @@
     </tbody>
 </table>
 
-<div style="margin-top:15px;">
-    {{ $employees->links() }}
+<div class="mt-3">
+    {{ $employees->links('pagination::bootstrap-5') }}
 </div>
 @endsection

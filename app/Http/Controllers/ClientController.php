@@ -9,19 +9,20 @@ class ClientController extends Controller
 {
     // Includes search functionality
     public function index(Request $request)
-    {
-        $query = Client::query();
+{
+    $query = Client::query();
 
-        if ($request->has('search') && $request->search != '') {
-            $searchTerm = $request->search;
-            $query->where('full_name', 'like', "%{$searchTerm}%")
+    if ($request->has('search') && $request->search != '') {
+        $searchTerm = $request->search;
+        $query->where('full_name', 'like', "%{$searchTerm}%")
             ->orWhere('phone', 'like', "%{$searchTerm}%");
-        }
-
-        $clients = $query->latest()->paginate(10);
-
-        return view('clients.index', compact('clients'));
     }
+
+    $clients = $query->latest()->paginate(10);
+
+    return view('clients.index', compact('clients'));
+}
+
     //create 
     public function create()
     {

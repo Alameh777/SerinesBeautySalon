@@ -126,11 +126,7 @@
     </div>
 @endif
 
-@if(session('error'))
-    <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
-        {{ session('error') }}
-    </div>
-@endif
+
 
 <div class="search-add-wrapper">
     <!-- Search Form -->
@@ -194,7 +190,8 @@
     </tbody>
 </table>
 
-<div style="margin-top:15px;">
-    {{ $services->links() }}
+<div class="mt-3">
+    {{ $services->appends(request()->query())->links('pagination::bootstrap-5') }}
 </div>
+
 @endsection

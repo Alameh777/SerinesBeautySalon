@@ -4,15 +4,7 @@
 <div class="card" style="padding: 24px; max-width: 600px; margin: auto; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.08); background:white;">
     <h1 style="margin-bottom: 16px; font-weight:600; color:var(--gray-700);">Add Client</h1>
 
-    @if ($errors->any())
-        <div style="color:red; margin-bottom:16px;">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    
 
     <form action="{{ route('clients.store') }}" method="POST">
         @csrf

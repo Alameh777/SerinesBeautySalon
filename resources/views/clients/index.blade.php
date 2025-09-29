@@ -115,7 +115,7 @@
     </tbody>
 </table>
 
-<div style="margin-top:15px;">
-    {{ $clients->links() }}
+<div class="mt-3">
+    {{ $clients->appends(request()->query())->links('pagination::bootstrap-5') }}
 </div>
 @endsection
