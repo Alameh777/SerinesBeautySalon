@@ -128,21 +128,11 @@
 <script>
 let serviceCounter = 1;
 
-// Service-Employee relationship data
-const serviceEmployeeData = @json($employees->mapWithKeys(function($employee) {
-    return [$employee->id => $employee->services->pluck('id')->toArray()];
-}));
-
+// We no longer need serviceEmployeeData, so removed it
 const employeesData = @json($employees->keyBy('id'));
 const servicesData = @json($services);
 
-console.log('JavaScript loaded. Services:', servicesData);
-console.log('Employees:', employeesData);
-console.log('Service-Employee relationships:', serviceEmployeeData);
-
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, setting up event listeners');
-    
     // Set current local time as default
     const startTimeInput = document.getElementById('start_time');
     if (startTimeInput && !startTimeInput.value) {
@@ -154,120 +144,86 @@ document.addEventListener('DOMContentLoaded', function() {
         const minutes = String(now.getMinutes()).padStart(2, '0');
         startTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
     }
-    
+
     // Add event listener to add service button
     const addServiceBtn = document.getElementById('add-service');
-    console.log('Add service button found:', addServiceBtn);
-    
     if (addServiceBtn) {
         addServiceBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Add service button clicked');
             addServiceRow();
         });
-    } else {
-        console.error('Add service button not found!');
     }
-    
-    // Add event listeners to existing service selects
+
+    // Event listeners for existing selects
     document.querySelectorAll('.service-select').forEach(select => {
         select.addEventListener('change', function() {
-            updateEmployeeOptions(this);
             updateServicePrice(this);
         });
     });
-    
-    // Add event listeners to existing price inputs
+
+    // Price inputs
     document.querySelectorAll('.price-input').forEach(input => {
         input.addEventListener('input', calculateTotal);
     });
-    
-    // Initialize remove buttons state
+
     updateRemoveButtons();
-    
-    // Calculate initial total
     calculateTotal();
 });
 
 function addServiceRow() {
-    console.log('Adding new service row, counter:', serviceCounter);
-    
     const container = document.getElementById('services-container');
-    if (!container) {
-        console.error('Services container not found!');
-        return;
-    }
-    
     const newRow = document.createElement('div');
     newRow.className = 'service-row';
     newRow.style.cssText = 'margin-bottom: 15px; padding: 15px; border: 1px solid #eee; border-radius: 4px;';
-    
-    // Build services options
+
+    // Services options
     let servicesOptions = '<option value="">--Select Service--</option>';
-    if (servicesData && Array.isArray(servicesData)) {
+    if (Array.isArray(servicesData)) {
         servicesData.forEach(service => {
-            servicesOptions += '<option value="' + service.id + '">' + service.name + ' - $' + service.price + ' (' + service.duration + 'min)</option>';
+            servicesOptions += `<option value="${service.id}">${service.name} - $${service.price} (${service.duration}min)</option>`;
         });
     }
-    
-    // Build employees options
+
+    // Employees options (always show all)
     let employeesOptions = '<option value="">--Select Employee--</option>';
-    if (employeesData && typeof employeesData === 'object') {
-        Object.keys(employeesData).forEach(employeeId => {
-            const employee = employeesData[employeeId];
-            employeesOptions += '<option value="' + employeeId + '">' + employee.name + '</option>';
-        });
-    }
-    
-    // Create the HTML content
-    const htmlContent = 
-        '<div style="display: flex; gap: 15px; align-items: end;">' +
-            '<div style="flex: 1;">' +
-                '<label style="display: block; margin-bottom: 5px; font-weight: bold;">Service:</label>' +
-                '<select name="services[' + serviceCounter + '][service_id]" class="service-select" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">' +
-                    servicesOptions +
-                '</select>' +
-            '</div>' +
-            '<div style="flex: 1;">' +
-                '<label style="display: block; margin-bottom: 5px; font-weight: bold;">Employee:</label>' +
-                '<select name="services[' + serviceCounter + '][employee_id]" class="employee-select" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">' +
-                    employeesOptions +
-                '</select>' +
-            '</div>' +
-            '<div style="flex: 0 0 120px;">' +
-                '<label style="display: block; margin-bottom: 5px; font-weight: bold;">Price:</label>' +
-                '<input type="number" name="services[' + serviceCounter + '][price]" class="price-input" step="0.01" min="0" value="0.00" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">' +
-            '</div>' +
-            '<div>' +
-                '<button type="button" class="remove-service" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;" onclick="removeServiceRow(this)">Remove</button>' +
-            '</div>' +
-        '</div>';
-    
-    newRow.innerHTML = htmlContent;
+    Object.keys(employeesData).forEach(employeeId => {
+        employeesOptions += `<option value="${employeeId}">${employeesData[employeeId].name}</option>`;
+    });
+
+    newRow.innerHTML = `
+        <div style="display: flex; gap: 15px; align-items: end;">
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Service:</label>
+                <select name="services[${serviceCounter}][service_id]" class="service-select" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    ${servicesOptions}
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Employee:</label>
+                <select name="services[${serviceCounter}][employee_id]" class="employee-select" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    ${employeesOptions}
+                </select>
+            </div>
+            <div style="flex: 0 0 120px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Price:</label>
+                <input type="number" name="services[${serviceCounter}][price]" class="price-input" step="0.01" min="0" value="0.00" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div>
+                <button type="button" class="remove-service" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;" onclick="removeServiceRow(this)">Remove</button>
+            </div>
+        </div>
+    `;
+
     container.appendChild(newRow);
     serviceCounter++;
-    
-    console.log('New service row added, new counter:', serviceCounter);
-    
-    // Update remove buttons state
+
     updateRemoveButtons();
-    
-    // Add event listener to new service select
-    const newServiceSelect = newRow.querySelector('.service-select');
-    if (newServiceSelect) {
-        newServiceSelect.addEventListener('change', function() {
-            updateEmployeeOptions(this);
-            updateServicePrice(this);
-        });
-    }
-    
-    // Add event listener to new price input
-    const newPriceInput = newRow.querySelector('.price-input');
-    if (newPriceInput) {
-        newPriceInput.addEventListener('input', calculateTotal);
-    }
-    
-    // Calculate total after adding new row
+
+    newRow.querySelector('.service-select').addEventListener('change', function() {
+        updateServicePrice(this);
+    });
+    newRow.querySelector('.price-input').addEventListener('input', calculateTotal);
+
     calculateTotal();
 }
 
@@ -279,50 +235,18 @@ function removeServiceRow(button) {
 
 function updateRemoveButtons() {
     const rows = document.querySelectorAll('.service-row');
-    const removeButtons = document.querySelectorAll('.remove-service');
-    
-    removeButtons.forEach((button, index) => {
+    document.querySelectorAll('.remove-service').forEach(button => {
         button.disabled = rows.length === 1;
     });
-}
-
-function updateEmployeeOptions(serviceSelect) {
-    const employeeSelect = serviceSelect.closest('.service-row').querySelector('.employee-select');
-    const selectedServiceId = parseInt(serviceSelect.value);
-    
-    // Clear current options except the first one
-    employeeSelect.innerHTML = '<option value="">--Select Employee--</option>';
-    
-    if (selectedServiceId) {
-        // Find employees who can perform this service
-        Object.keys(serviceEmployeeData).forEach(employeeId => {
-            if (serviceEmployeeData[employeeId].includes(selectedServiceId)) {
-                const employeeName = employeesData[employeeId].name;
-                const option = document.createElement('option');
-                option.value = employeeId;
-                option.textContent = employeeName;
-                employeeSelect.appendChild(option);
-            }
-        });
-    } else {
-        // If no service selected, show all employees
-        Object.keys(employeesData).forEach(employeeId => {
-            const employeeName = employeesData[employeeId].name;
-            const option = document.createElement('option');
-            option.value = employeeId;
-            option.textContent = employeeName;
-            employeeSelect.appendChild(option);
-        });
-    }
 }
 
 function updateServicePrice(serviceSelect) {
     const selectedServiceId = serviceSelect.value;
     const priceInput = serviceSelect.closest('.service-row').querySelector('.price-input');
-    
+
     if (selectedServiceId && servicesData) {
         const service = servicesData.find(s => s.id == selectedServiceId);
-        if (service && priceInput) {
+        if (service) {
             priceInput.value = parseFloat(service.price).toFixed(2);
             calculateTotal();
         }
@@ -332,14 +256,10 @@ function updateServicePrice(serviceSelect) {
 function calculateTotal() {
     let total = 0;
     document.querySelectorAll('.price-input').forEach(input => {
-        const price = parseFloat(input.value) || 0;
-        total += price;
+        total += parseFloat(input.value) || 0;
     });
-    
-    const totalElement = document.getElementById('total-price');
-    if (totalElement) {
-        totalElement.textContent = '$' + total.toFixed(2);
-    }
+    document.getElementById('total-price').textContent = '$' + total.toFixed(2);
 }
 </script>
+
 @endsection
