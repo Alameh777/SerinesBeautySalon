@@ -1,6 +1,71 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+.search-select-container {
+    position: relative;
+}
+
+.search-select-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    z-index: 1000;
+    display: none;
+}
+
+.search-select-dropdown.active {
+    display: block;
+}
+
+.search-select-search {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-bottom: 1px solid #eee;
+    outline: none;
+    position: sticky;
+    top: 0;
+    background: white;
+}
+
+.search-select-option {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.search-select-option:hover {
+    background: #f8f9fa;
+}
+
+.search-select-option.selected {
+    background: #007bff;
+    color: white;
+}
+
+.search-select-no-results {
+    padding: 10px;
+    color: #999;
+    text-align: center;
+}
+</style>
+
 <h2>New Booking</h2>
 
 @if ($errors->any())
@@ -22,14 +87,22 @@
         
         <div style="margin-bottom: 15px;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold;">Client:</label>
-            <select name="client_id" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                <option value="">--Select Client--</option>
-                @foreach($clients as $client)
-                <option value="{{ $client->id }}" {{ old('client_id')==$client->id?'selected':'' }}>
-                    {{ $client->full_name }} ({{ $client->phone }})
-                </option>
-                @endforeach
-            </select>
+            <div class="search-select-container">
+                <input type="text" 
+                       id="client-search-input" 
+                       class="search-select-input" 
+                       placeholder="Search or select client..." 
+                       autocomplete="off"
+                       readonly>
+                <input type="hidden" name="client_id" id="client-id-input" required>
+                <div id="client-dropdown" class="search-select-dropdown">
+                    <input type="text" 
+                           id="client-search-box" 
+                           class="search-select-search" 
+                           placeholder="Type to search...">
+                    <div id="client-options"></div>
+                </div>
+            </div>
         </div>
 
         <div style="margin-bottom: 15px;">
@@ -128,11 +201,115 @@
 <script>
 let serviceCounter = 1;
 
-// We no longer need serviceEmployeeData, so removed it
 const employeesData = @json($employees->keyBy('id'));
 const servicesData = @json($services);
+const clientsData = @json($clients);
+
+// Searchable Client Select
+class SearchableSelect {
+    constructor(inputId, hiddenInputId, dropdownId, searchBoxId, optionsId, data) {
+        this.input = document.getElementById(inputId);
+        this.hiddenInput = document.getElementById(hiddenInputId);
+        this.dropdown = document.getElementById(dropdownId);
+        this.searchBox = document.getElementById(searchBoxId);
+        this.optionsContainer = document.getElementById(optionsId);
+        this.data = data;
+        this.filteredData = data;
+        
+        this.init();
+    }
+    
+    init() {
+        this.renderOptions();
+        this.attachEvents();
+        
+        // Set old value if exists
+        const oldValue = "{{ old('client_id') }}";
+        if (oldValue) {
+            const client = this.data.find(c => c.id == oldValue);
+            if (client) {
+                this.selectOption(client);
+            }
+        }
+    }
+    
+    attachEvents() {
+        // Open dropdown on input click
+        this.input.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.dropdown.classList.add('active');
+            this.searchBox.focus();
+        });
+        
+        // Search functionality
+        this.searchBox.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            this.filteredData = this.data.filter(client => 
+                client.full_name.toLowerCase().includes(query) || 
+                client.phone.toLowerCase().includes(query)
+            );
+            this.renderOptions();
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!this.dropdown.contains(e.target) && e.target !== this.input) {
+                this.dropdown.classList.remove('active');
+            }
+        });
+        
+        // Prevent dropdown from closing when clicking inside search box
+        this.searchBox.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+    
+    renderOptions() {
+        this.optionsContainer.innerHTML = '';
+        
+        if (this.filteredData.length === 0) {
+            this.optionsContainer.innerHTML = '<div class="search-select-no-results">No clients found</div>';
+            return;
+        }
+        
+        this.filteredData.forEach(client => {
+            const option = document.createElement('div');
+            option.className = 'search-select-option';
+            if (this.hiddenInput.value == client.id) {
+                option.classList.add('selected');
+            }
+            option.textContent = `${client.full_name} (${client.phone})`;
+            option.dataset.id = client.id;
+            
+            option.addEventListener('click', () => {
+                this.selectOption(client);
+                this.dropdown.classList.remove('active');
+            });
+            
+            this.optionsContainer.appendChild(option);
+        });
+    }
+    
+    selectOption(client) {
+        this.input.value = `${client.full_name} (${client.phone})`;
+        this.hiddenInput.value = client.id;
+        this.searchBox.value = '';
+        this.filteredData = this.data;
+        this.renderOptions();
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize searchable client select
+    new SearchableSelect(
+        'client-search-input',
+        'client-id-input',
+        'client-dropdown',
+        'client-search-box',
+        'client-options',
+        clientsData
+    );
+    
     // Set current local time as default
     const startTimeInput = document.getElementById('start_time');
     if (startTimeInput && !startTimeInput.value) {
