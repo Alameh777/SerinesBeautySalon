@@ -185,7 +185,7 @@ public function update(Request $request, Booking $booking)
     }
 
     // ✅ Redirect back to your employee bookings page
-    return redirect()->to('/bookings/employee')->with('success', 'Booking updated successfully.');
+    return redirect()->to('bookings/employee?employee_id=&date=2025-10-03&show_all=1')->with('success', 'Booking updated successfully.');
 }
 
 
@@ -195,41 +195,40 @@ public function update(Request $request, Booking $booking)
         return view('bookings.schedule');
     }
 
-    public function getEvents(Request $request)
-    {
-        $bookings = Booking::with(['client','serviceEmployees.service','serviceEmployees.employee'])
-            ->orderBy('start_time','asc')
-            ->get();
+   public function getEvents(Request $request)
+{
+    $bookings = Booking::with(['client','serviceEmployees.service','serviceEmployees.employee'])
+        ->orderBy('start_time','asc')
+        ->get();
 
-        $events = [];
-        foreach ($bookings as $booking) {
-            // Build a title combining client and services
-            $services = $booking->serviceEmployees->map(function($se) {
-                return optional($se->service)->name;
-            })->filter()->join(', ');
-            $employees = $booking->serviceEmployees->map(function($se) {
-                return optional($se->employee)->name;
-            })->filter()->unique()->join(', ');
+    $events = [];
+    foreach ($bookings as $booking) {
+        $services = $booking->serviceEmployees->map(fn($se) => optional($se->service)->name)->filter()->join(', ');
+        $employees = $booking->serviceEmployees->map(fn($se) => optional($se->employee)->name)->filter()->unique()->join(', ');
 
-            $titleParts = [];
-            if ($booking->client) { $titleParts[] = $booking->client->full_name; }
-            if ($services) { $titleParts[] = $services; }
-            if ($employees) { $titleParts[] = '@ ' . $employees; }
-            $title = implode(' • ', $titleParts);
+        $titleParts = [];
+        if ($booking->client) { $titleParts[] = $booking->client->full_name; }
+        if ($services) { $titleParts[] = $services; }
+        if ($employees) { $titleParts[] = '@ ' . $employees; }
+        $title = implode(' • ', $titleParts) ?: 'Booking #' . $booking->id;
 
-            $events[] = [
-                'id' => $booking->id,
-                'title' => $title ?: 'Booking #' . $booking->id,
-                'start' => $booking->start_time ? $booking->start_time->toIso8601String() : null,
-                // No end time stored; display as timed event starting at start_time
-                'allDay' => false,
-                'extendedProps' => [
-                    'payment_status' => $booking->payment_status,
-                    'notes' => $booking->notes,
-                ],
-            ];
-        }
+        // Calculate end time as start_time + total service duration
+        $totalMinutes = $booking->serviceEmployees->sum(fn($se) => optional($se->service)->duration ?? 60);
+        $endTime = $booking->start_time->copy()->addMinutes($totalMinutes);
 
-        return response()->json($events);
+        $events[] = [
+            'id' => $booking->id,
+            'title' => $title,
+            'start' => $booking->start_time->format('Y-m-d\TH:i:s'),
+            'end' => $endTime->format('Y-m-d\TH:i:s'),
+            'allDay' => false,
+            'extendedProps' => [
+                'payment_status' => $booking->payment_status,
+                'notes' => $booking->notes,
+            ],
+        ];
     }
+
+    return response()->json($events);
+}
 }

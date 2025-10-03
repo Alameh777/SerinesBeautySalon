@@ -36,8 +36,8 @@
         <div style="margin-bottom: 15px;">
             <label>Start Time:</label>
             <input type="datetime-local" name="start_time" 
-                   value="{{ old('start_time', $booking->start_time->format('Y-m-d\TH:i')) }}" required 
-                   style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+                value="{{ old('start_time', $booking->start_time->format('Y-m-d\TH:i')) }}" required 
+                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
         </div>
 
         <div style="margin-bottom: 15px;">
@@ -90,8 +90,8 @@
                     <div style="flex:0 0 120px;">
                         <label>Price:</label>
                         <input type="number" name="services[{{ $index }}][price]" class="price-input" step="0.01" min="0" 
-                               value="{{ $se->price }}" required
-                               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+                            value="{{ $se->price }}" required
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
                     </div>
 
                     <div>
