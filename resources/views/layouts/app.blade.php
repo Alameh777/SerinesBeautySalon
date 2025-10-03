@@ -95,7 +95,7 @@
 <body>
     <div class="topbar">
         <div class="brand">
-            <span class="brand-badge">❤️</span>
+            <span class="brand-badge">   <img src="{{ asset('images/violetlogo.png') }}" alt="Brand Logo" style="width:20px; height:20px;"></span>
             <span>Serine's Salon</span>
         </div>
         <div class="nav">

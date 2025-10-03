@@ -171,6 +171,7 @@
                         <th>Client</th>
                         <th>Services</th>
                         <th>Payment</th>
+                        <th>Total Price</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -194,6 +195,11 @@
                                 {{ ucfirst($booking->payment_status) }}
                             </span>
                         </td>
+                       <td>
+    ${{ number_format($booking->serviceEmployees->sum('price'), 2) }}
+</td>
+
+
                         <td>
     <div class="table-actions">
         <!-- Edit -->
