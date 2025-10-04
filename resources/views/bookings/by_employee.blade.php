@@ -226,8 +226,16 @@
                     </tr>
                 @endforeach
                 </tbody>
+                
             </table>
+            @if ($bookings instanceof \Illuminate\Pagination\LengthAwarePaginator)
+    {{ $bookings->appends(request()->query())->links('pagination::bootstrap-5') }}
+
+@endif
+
         @endif
     </div>
+    
     @endif
+    
     @endsection

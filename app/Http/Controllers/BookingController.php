@@ -115,7 +115,8 @@ public function byEmployee(Request $request)
     $date = $request->get('date');                  // DO NOT default to today here
     $showAll = $request->boolean('show_all');       // cast to boolean properly
 
-    $bookings = collect();
+    $bookings = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
+
 
     if ($showAll) {
         // All bookings (optionally for a specific employee)
@@ -123,10 +124,12 @@ public function byEmployee(Request $request)
             $bookings = Booking::whereHas('serviceEmployees', function($q) use ($employeeId) {
                 $q->where('employee_id', $employeeId);
             })->with(['client','serviceEmployees.service','serviceEmployees.employee'])
-              ->orderBy('start_time','desc')->get();
+              ->orderBy('start_time','desc')->orderBy('start_time','desc')->paginate(10);
+;
         } else {
             $bookings = Booking::with(['client','serviceEmployees.service','serviceEmployees.employee'])
-                              ->orderBy('start_time','desc')->get();
+                              ->orderBy('start_time','desc')->orderBy('start_time','desc')->paginate(10);
+;
         }
     } elseif ($employeeId && $date) {
         // Employee + date
@@ -134,18 +137,21 @@ public function byEmployee(Request $request)
             $q->where('employee_id', $employeeId);
         })->whereDate('start_time', $date)
           ->with(['client','serviceEmployees.service','serviceEmployees.employee'])
-          ->orderBy('start_time','desc')->get();
+          ->orderBy('start_time','desc')->orderBy('start_time','desc')->paginate(10);
+;
     } elseif ($date) {
         // Date only (all employees) <- THIS IS THE FIX FOR YOUR PROBLEM
         $bookings = Booking::whereDate('start_time', $date)
             ->with(['client','serviceEmployees.service','serviceEmployees.employee'])
-            ->orderBy('start_time','desc')->get();
+            ->orderBy('start_time','desc')->orderBy('start_time','desc')->paginate(10);
+;
     } elseif ($employeeId) {
         // Employee only (no date filter)
         $bookings = Booking::whereHas('serviceEmployees', function($q) use ($employeeId) {
             $q->where('employee_id', $employeeId);
         })->with(['client','serviceEmployees.service','serviceEmployees.employee'])
-          ->orderBy('start_time','desc')->get();
+          ->orderBy('start_time','desc')->orderBy('start_time','desc')->paginate(10);
+;
     }
 
     return view('bookings.by_employee', compact('employees','employeeId','date','showAll','bookings'));
