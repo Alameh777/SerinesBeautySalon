@@ -11,7 +11,7 @@ A full-featured web application built with **Laravel** for managing salon bookin
 - 💅 **Service Management:** Manage salon services with customizable prices and durations.
 - 🪞 **Dashboard:** Admin panel to monitor all bookings, clients, and activities.
 - 💳 **Payment Tracking:** Keep track of completed and pending payments.
-- 🔐 **User Authentication:** Secure login and role-based access (Admin / Employee).
+
 
 ---
 
