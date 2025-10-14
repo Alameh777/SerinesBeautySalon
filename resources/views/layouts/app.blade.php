@@ -106,6 +106,10 @@
             <a href="{{ route('services.index') }}" class="{{ request()->routeIs('services.*') ? 'active' : '' }}">Services</a>
             <a href="{{ route('bookings.index') }}" class="{{ request()->routeIs('bookings.index') ? 'active' : '' }}">Bookings</a>
             <a href="{{ route('bookings.schedule') }}" class="{{ request()->routeIs('bookings.schedule') ? 'active' : '' }}">Schedule</a>
+            <a href="{{ route('backup.download') }}" class="{{ request()->routeIs('backup.download') ? 'active' : '' }}">
+    Backup Database
+</a>
+
         </div>
     </div>
 

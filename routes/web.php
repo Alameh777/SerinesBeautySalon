@@ -5,6 +5,9 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\BackupController;
+
+
 // web.php
 Route::get('/dashboard', function () {
     try {
@@ -42,7 +45,9 @@ Route::get('bookings/events', [BookingController::class, 'getEvents'])->name('bo
 // View bookings filtered by employee
 Route::get('bookings/employee', [BookingController::class, 'byEmployee'])->name('bookings.byEmployee');
 
+// Backup routes
 
+Route::get('/backup/download', [BackupController::class, 'downloadBackup'])->name('backup.download');
 
 
 // Debug routes

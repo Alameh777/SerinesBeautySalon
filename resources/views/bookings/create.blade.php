@@ -203,8 +203,10 @@ let serviceCounter = 1;
 
 const employeesData = @json($employees->keyBy('id'));
 const servicesData = @json($services);
-const clientsData = @json($clients);
+const clientsData = Object.values(@json($clients));
+console.log('Clients Data:', clientsData); 
 
+// Searchable Client Select
 // Searchable Client Select
 class SearchableSelect {
     constructor(inputId, hiddenInputId, dropdownId, searchBoxId, optionsId, data) {
@@ -238,17 +240,31 @@ class SearchableSelect {
         this.input.addEventListener('click', (e) => {
             e.stopPropagation();
             this.dropdown.classList.add('active');
+            this.searchBox.value = ''; // Clear search
+            this.filteredData = this.data; // Reset filter
+            this.renderOptions();
             this.searchBox.focus();
         });
         
-        // Search functionality
+        // Search functionality - THIS IS THE KEY FIX
         this.searchBox.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
             this.filteredData = this.data.filter(client => 
                 client.full_name.toLowerCase().includes(query) || 
-                client.phone.toLowerCase().includes(query)
+                (client.phone && client.phone.toLowerCase().includes(query))
             );
             this.renderOptions();
+            
+            // Make sure dropdown stays open while typing
+            if (!this.dropdown.classList.contains('active')) {
+                this.dropdown.classList.add('active');
+            }
+        });
+        
+        // Open dropdown when clicking on search box too
+        this.searchBox.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.dropdown.classList.add('active');
         });
         
         // Close dropdown when clicking outside
@@ -256,11 +272,6 @@ class SearchableSelect {
             if (!this.dropdown.contains(e.target) && e.target !== this.input) {
                 this.dropdown.classList.remove('active');
             }
-        });
-        
-        // Prevent dropdown from closing when clicking inside search box
-        this.searchBox.addEventListener('click', (e) => {
-            e.stopPropagation();
         });
     }
     
@@ -278,7 +289,9 @@ class SearchableSelect {
             if (this.hiddenInput.value == client.id) {
                 option.classList.add('selected');
             }
-            option.textContent = `${client.full_name} (${client.phone})`;
+            // Handle empty phone gracefully
+            const phoneDisplay = client.phone ? ` (${client.phone})` : ' (No phone)';
+            option.textContent = `${client.full_name}${phoneDisplay}`;
             option.dataset.id = client.id;
             
             option.addEventListener('click', () => {
@@ -291,14 +304,14 @@ class SearchableSelect {
     }
     
     selectOption(client) {
-        this.input.value = `${client.full_name} (${client.phone})`;
+        const phoneDisplay = client.phone ? ` (${client.phone})` : ' (No phone)';
+        this.input.value = `${client.full_name}${phoneDisplay}`;
         this.hiddenInput.value = client.id;
         this.searchBox.value = '';
         this.filteredData = this.data;
         this.renderOptions();
     }
 }
-
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize searchable client select
     new SearchableSelect(
@@ -308,8 +321,9 @@ document.addEventListener('DOMContentLoaded', function() {
         'client-search-box',
         'client-options',
         clientsData
+        
     );
-    
+   
     // Set current local time as default
     const startTimeInput = document.getElementById('start_time');
     if (startTimeInput && !startTimeInput.value) {
